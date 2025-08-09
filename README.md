@@ -1,2 +1,2 @@
 # crowdfunding_backend
-Backend for my crowdfunding project
+Backend for my crowdfunding project.
