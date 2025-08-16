@@ -10,9 +10,15 @@
 
 ### Front End Pages/Functionality
 - Home Page
-   - Featured 
+   - Featured fundraiser
+- Search page
+   - Search specific fundraiser
 - Create New Fundraiser Page
-- Form with fundraiser details 
+   - Form with fundraiser details 
+   - Ability to submit
+   - Nice error handling
+- Display fundraiser
+   - Shows all information  
 
 ### API Spec
 {{ Fill out the table below to define your endpoints. An example of what this might look like is shown at the bottom of the page. 
