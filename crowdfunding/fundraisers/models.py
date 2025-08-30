@@ -4,7 +4,9 @@ from django.contrib.auth import get_user_model
 class Fundraiser(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
+    pokemon = models.CharField(max_length=100)
     goal = models.IntegerField()
+    items_needed = models.CharField(max_length=200) #list or charfield?
     image = models.URLField()
     is_open = models.BooleanField()
     date_created = models.DateTimeField(auto_now_add=True)

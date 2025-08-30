@@ -30,7 +30,9 @@ class FundraiserDetailSerializer(FundraiserSerializer):
     def update(self, instance, validated_data):
         instance.title = validated_data.get('title', instance.title)
         instance.description = validated_data.get('description', instance.description)
+        instance.pokemon= validated_data.get('pokemon', instance.pokemon)
         instance.goal = validated_data.get('goal', instance.goal)
+        instance.items_needed = validated_data.get('items_needed', instance.items_needed)
         instance.image = validated_data.get('image', instance.image)
         instance.is_open = validated_data.get('is_open', instance.is_open)
         instance.owner = validated_data.get('owner', instance.owner)
