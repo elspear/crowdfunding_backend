@@ -3,7 +3,9 @@ from django.apps import apps
 
 
 class FundraiserSerializer(serializers.ModelSerializer):
+    owner_role = serializers.ReadOnlyField(source='owner.role')
     owner = serializers.ReadOnlyField(source='owner.id')
+    
 
     class Meta:
         model = apps.get_model('fundraisers.Fundraiser')
@@ -11,6 +13,7 @@ class FundraiserSerializer(serializers.ModelSerializer):
 
 
 class PledgeSerializer(serializers.ModelSerializer):
+    supporter_role = serializers.ReadOnlyField(source='supporter.role')
     supporter = serializers.ReadOnlyField(source='supporter.id')
     class Meta:
         model = apps.get_model('fundraisers.Pledge')
