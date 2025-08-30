@@ -4,6 +4,7 @@ from rest_framework import status
 from django.http import Http404
 from .models import CustomUser
 from .serializers import CustomUserSerializer
+from .permissions import IsAccountOwner
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 
@@ -29,6 +30,7 @@ class CustomUserList(APIView):
             )
 
 class CustomUserDetail(APIView):
+    permission_classes = [IsAccountOwner]
     def get_object(self, pk): #fetches one user safely using pk
         try:
             return CustomUser.objects.get(pk=pk)
@@ -39,6 +41,22 @@ class CustomUserDetail(APIView):
         user = self.get_object(pk)
         serializer = CustomUserSerializer(user)
         return Response(serializer.data)
+    
+    def put(self, request, pk):
+        user = self.get_object(pk)
+        self.check_object_permissions(request, user)
+        serializer = CustomUserSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    def delete(self, request, pk):
+        user = self.get_object(pk)
+        self.check_object_permissions(request, user)
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class CustomAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):

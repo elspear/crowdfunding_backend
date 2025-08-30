@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework.permissions import IsAuthenticatedOrReadOnly 
 from django.http import Http404
+import requests
 from .models import Fundraiser, Pledge
 from .serializers import FundraiserSerializer, PledgeSerializer, FundraiserDetailSerializer
 from .permissions import IsOwnerOrReadOnly, IsSupporterOrReadOnly
@@ -16,7 +17,14 @@ class FundraiserList(APIView):
         serializer = FundraiserSerializer(fundraisers, many=True)
         return Response(serializer.data)
     
-    def post(self, request): 
+    def post(self, request):
+        pokemon_name = request.data.get('pokemon', '').lower()
+        response = requests.get(f"https://pokeapi.co/api/v2/pokemon/{pokemon_name}")
+        if response.status_code != 200:
+            return Response(
+                {"error": "invalid Pokemon name. Please choose a real Pokemon"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         serializer = FundraiserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(owner=request.user) 
@@ -64,7 +72,13 @@ class FundraiserDetail(APIView):
     def get(self, request, pk): 
         fundraiser = self.get_object(pk)
         serializer = FundraiserDetailSerializer(fundraiser)
-        return Response(serializer.data)      
+        return Response(serializer.data)    
+
+    def delete(self, request, pk):
+        fundraiser = self.get_object(pk)
+        self.check_object_permissions(request, fundraiser)
+        fundraiser.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class PledgeList(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]

@@ -3,6 +3,7 @@ from django.apps import apps
 
 
 class FundraiserSerializer(serializers.ModelSerializer):
+    owner_username = serializers.ReadOnlyField(source='owner.username')
     owner_role = serializers.ReadOnlyField(source='owner.role')
     owner = serializers.ReadOnlyField(source='owner.id')
     
