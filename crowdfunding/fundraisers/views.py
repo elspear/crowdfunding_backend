@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework.permissions import IsAuthenticatedOrReadOnly 
 from django.http import Http404
-import requests
 from .models import Fundraiser, Pledge
 from .serializers import FundraiserSerializer, PledgeSerializer, FundraiserDetailSerializer
 from .permissions import IsOwnerOrReadOnly, IsSupporterOrReadOnly
