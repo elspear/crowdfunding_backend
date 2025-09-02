@@ -15,7 +15,7 @@ class FundraiserSerializer(serializers.ModelSerializer):
 class PledgeSerializer(serializers.ModelSerializer):
     supporter_role = serializers.ReadOnlyField(source="supporter.role")
     supporter = serializers.ReadOnlyField(source="supporter.id")
-    fundraiser = serializers.PrimaryKeyRelatedField(read_only=True)
+    fundraiser = serializers.PrimaryKeyRelatedField(queryset=apps.get_model("fundraisers.Fundraiser").objects.all())
 
     class Meta:
         model = apps.get_model("fundraisers.Pledge")
