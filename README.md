@@ -77,4 +77,4 @@ Visibility & Safety
 | /users/            | PUT         | Edit account                | JSON Payload | 200                   | Account owner                |
 | /users/            | DELETE      | Delete account              | N/A          |                       | Account owner                |
 ### DB Schema
-![]( {{ ./relative/path/to/your/schema/image.png }} )
+![Database Schema](database.drawio.svg)
