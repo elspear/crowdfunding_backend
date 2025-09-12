@@ -1,15 +1,41 @@
 from rest_framework import serializers
 from django.apps import apps
+from .models import SiteStats
+
+
+class SiteStatsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SiteStats
+        fields = [
+            'total_fundraisers',
+            'total_users',
+            'total_pledges',
+            'total_amount_pledged',
+            'total_pokemon_helped',
+            'last_updated'
+        ]
+        read_only_fields = fields
 
 
 class FundraiserSerializer(serializers.ModelSerializer):
     owner_username = serializers.ReadOnlyField(source="owner.username")
     owner_role = serializers.ReadOnlyField(source="owner.role")
     owner = serializers.ReadOnlyField(source="owner.id")
+    progress = serializers.SerializerMethodField()
+    progress_percentage = serializers.SerializerMethodField()
 
     class Meta:
         model = apps.get_model("fundraisers.Fundraiser")
         fields = "__all__"
+
+    def get_progress(self, obj):
+        return sum(pledge.amount for pledge in obj.pledges.all())
+    
+    def get_progress_percentage(self, obj):
+        total = sum(pledge.amount for pledge in obj.pledges.all())
+        if obj.goal > 0:  # avoid division by zero
+            return round((total / obj.goal) * 100, 1)  # rounds to 1 decimal place
+        return 0
 
 
 class PledgeSerializer(serializers.ModelSerializer):

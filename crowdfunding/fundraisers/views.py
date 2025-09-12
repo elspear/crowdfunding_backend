@@ -4,9 +4,16 @@ from rest_framework import status, permissions
 from rest_framework.permissions import IsAuthenticatedOrReadOnly 
 from django.http import Http404
 import requests
-from .models import Fundraiser, Pledge
-from .serializers import FundraiserSerializer, PledgeSerializer, FundraiserDetailSerializer
+from .models import Fundraiser, Pledge, SiteStats
+from .serializers import FundraiserSerializer, PledgeSerializer, FundraiserDetailSerializer, SiteStatsSerializer
 from .permissions import IsOwnerOrReadOnly, IsSupporterOrReadOnly
+
+
+class SiteStatsView(APIView):
+    def get(self, request):
+        stats = SiteStats.get_stats()
+        serializer = SiteStatsSerializer(stats)
+        return Response(serializer.data)
 
 
 class FundraiserList(APIView):
