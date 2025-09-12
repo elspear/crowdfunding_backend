@@ -4,9 +4,9 @@ Emma Spear
 ## Planning:
 ### Concept/Name
 **PokePledge** is a crowdfunding app with a Pokémon twist. 
-Trainers can create fundraisers on behalf of their Pokémon — like Snorlax asking for a beanbag chair or Eevee hoping for grooming supplies — and the community can pledge support to bring those wishes to life.  
+Trainers can create fundraisers on behalf of their Pokémon — like Snorlax asking for a beanbag chair or Eevee hoping for a special crystal to ✨ evolve ✨ — and the community can pledge support to bring those wishes to life.  
 
-The project demonstrates a full-stack Django REST Framework + React build, with user accounts, fundraisers, and pledges.
+The project demonstrates a full-stack Django REST Framework + React build, with user accounts, fundraisers, pledges, and more.
 
 ### Intended Audience/User Stories
 The intended audience includes:
@@ -17,11 +17,10 @@ The intended audience includes:
 
 **User stories:**
 Accounts & Roles
-- As a new user, I can sign up with a username, email, and password.
-- As a user, I can log in and receive a token so I can make authenticated requests.
-- As a user, I can choose my role (trainer, Pokémon Center admin, Safari Park admin) at signup.
-- As a user, I can update my account information as well as delete my account. 
-- As a user, I can have a profile page displaying an image, bio, and my current fundraisers and pledges (excluding anonymous pledges)
+- As a visitor, I can browse open fundraisers.
+- As a supporter, I can pledge to fundraisers that interest me, and choose whether my donation is public or anonymous.
+- As a user, I can create a profile page.
+- As a fundraiser owner, I can update my fundraiser details and close it when the goal is met.
 
 Create & Manage Fundraisers
 - Any user role can create a fundraiser with a title, description, goal (₽), Pokémon name, image, and items needed. 
@@ -43,9 +42,9 @@ Visibility & Safety
 
 ### Front End Pages/Functionality
 - **Home Page**
-  - Featured fundraisers.
-  - Search and filter options.  
-  - Logged-in user's can track progress on fundraiser's they have pledged to. 
+  - Login or create new user
+  - View featured fundraisers
+  - Search and filter options for fundraisers
 
 - **Fundraiser Detail Page**
   - Displays fundraiser description, goal, progress, and pledges.  
@@ -82,7 +81,8 @@ Visibility & Safety
 | /users/              | PUT         | Edit account                   | JSON Payload | 200                   | Account owner                |
 | /users/              | DELETE      | Delete account                 | N/A          |                       | Account owner                |
 | /users/profile/{id}/ | GET         | Fetch a users profile          | N/A          | 200                   | Any logged in user           |
-| /users/profile/{id}/ | PUT         | Fill out / update user profile | JSON Payload | 200                   | Profile owner                |
+| /users/profile/{id}/ | PATCH         | Fill out / update user profile | JSON Payload | 200                   | Profile owner                |
+|/site-stats/ | GET | Fetch site stats on fundraisers | N/A | 
 ### DB Schema
 ![Database Schema](database.drawio.svg)
 
