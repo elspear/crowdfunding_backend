@@ -8,21 +8,36 @@ from .models import Fundraiser, Pledge, SiteStats
 from .serializers import FundraiserSerializer, PledgeSerializer, FundraiserDetailSerializer, SiteStatsSerializer
 from .permissions import IsOwnerOrReadOnly, IsSupporterOrReadOnly
 
-
 class SiteStatsView(APIView):
     def get(self, request):
         stats = SiteStats.get_stats()
         serializer = SiteStatsSerializer(stats)
         return Response(serializer.data)
 
-
 class FundraiserList(APIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get(self, request): 
+        # show all
         fundraisers = Fundraiser.objects.all()
+
+        # filter by pokemon
+        pokemon_filter = request.query_params.get('pokemon')
+        if pokemon_filter:
+            fundraisers = fundraisers.filter(pokemon__iexact=pokemon_filter)
+        
+        # filter by open/closed 
+        status_filter = request.query_params.get('status')
+        if status_filter:
+            is_open = status_filter.lower() == 'open'
+            fundraisers = fundraisers.filter(is_open=is_open)
+
+        # most recent first
+        fundraisers = fundraisers.order_by('-date_created')
+        
         serializer = FundraiserSerializer(fundraisers, many=True)
         return Response(serializer.data)
+
     
     def post(self, request):
         pokemon_name = request.data.get('pokemon', '').lower()
