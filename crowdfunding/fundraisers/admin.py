@@ -1,3 +1,8 @@
 from django.contrib import admin
 
-# Register your models here.
+
+from .models import SiteStats, Fundraiser, Pledge
+
+admin.site.register(SiteStats)
+admin.site.register(Fundraiser)
+admin.site.register(Pledge)
