@@ -41,11 +41,18 @@ class FundraiserSerializer(serializers.ModelSerializer):
 class PledgeSerializer(serializers.ModelSerializer):
     supporter_role = serializers.ReadOnlyField(source="supporter.role")
     supporter = serializers.ReadOnlyField(source="supporter.id")
+    supporter_username = serializers.ReadOnlyField(source="supporter.username")
     fundraiser = serializers.PrimaryKeyRelatedField(queryset=apps.get_model("fundraisers.Fundraiser").objects.all())
 
     class Meta:
         model = apps.get_model("fundraisers.Pledge")
         fields = "__all__"
+        extra_fields = ['supporter_username']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['supporter_username'] = instance.supporter.username
+        return representation
 
     def update(self, instance, validated_data):
         new_amount = validated_data.get("amount", instance.amount)
