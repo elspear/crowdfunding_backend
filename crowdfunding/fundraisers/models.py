@@ -30,6 +30,7 @@ class Fundraiser(models.Model):
     image = models.URLField()
     is_open = models.BooleanField(default=True)
     date_created = models.DateTimeField(auto_now_add=True)
+    end_date = models.DateTimeField(blank=True, null=True)
     owner = models.ForeignKey(
         get_user_model(),
         related_name='owned_fundraisers',
