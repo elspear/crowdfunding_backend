@@ -26,7 +26,7 @@ class Fundraiser(models.Model):
     description = models.TextField()
     pokemon = models.CharField(max_length=100)
     goal = models.IntegerField()
-    items_needed = models.CharField(max_length=200) #list 
+    items_needed = models.CharField(max_length=200, blank=True, default="")  # optional list
     image = models.URLField()
     is_open = models.BooleanField(default=True)
     date_created = models.DateTimeField(auto_now_add=True)

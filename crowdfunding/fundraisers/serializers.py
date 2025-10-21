@@ -22,6 +22,7 @@ class FundraiserSerializer(serializers.ModelSerializer):
     owner_role = serializers.ReadOnlyField(source="owner.role")
     owner = serializers.ReadOnlyField(source="owner.id")
     end_date = serializers.DateTimeField(allow_null=True, required=False)
+    items_needed = serializers.CharField(allow_blank=True, required=False)
     progress = serializers.SerializerMethodField()
     progress_percentage = serializers.SerializerMethodField()
 
