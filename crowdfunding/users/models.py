@@ -15,14 +15,14 @@ class CustomUser(AbstractUser):
     
 class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
-    username = models.CharField(max_length=150, blank=True, null=True)
+    username = models.CharField(max_length=150, blank=True, null=True, db_index=True)
     bio = models.TextField(blank=True)
     avatar = models.CharField(max_length=200, blank=True, default="")
 
     def save(self, *args, **kwargs):
         if self.user and not self.username:
             self.username = self.user.username
-            super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     
 

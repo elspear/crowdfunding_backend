@@ -6,24 +6,30 @@ from .models import Profile
 
 User = get_user_model()
 
+
 @receiver(post_save, sender=User)
-def create_or_ensure_profile(sender, instance, created, **kwargs):
+def ensure_profile_and_sync_username(sender, instance, created, **kwargs):
     """
-    Ensure there is a Profile for every User and try to keep profile.username
-    in sync with the User.username (if Profile has such a field).
+    Ensure a Profile exists for every User. On creation, create the Profile
+    and seed profile.username from user.username (if that field exists).
+    On subsequent saves, ensure a Profile exists and keep profile.username
+    in sync using a QuerySet update for efficiency.
     """
+    # Create profile if missing; when creating, try to set username directly
     if created:
-        Profile.objects.create(user=instance)
+        # If Profile has a username field, set it at creation to avoid an extra save
+        try:
+            Profile.objects.create(user=instance, username=instance.username)
+        except TypeError:
+            # Profile model doesn't accept username in constructor (field may not exist)
+            Profile.objects.create(user=instance)
     else:
+        # Defensive: ensure profile exists (get_or_create is cheap for most workloads)
         Profile.objects.get_or_create(user=instance)
 
-    # If Profile has a username field, ensure it's synced from the User
-    try:
-        profile = instance.profile  # uses related_name='profile'
-        # Only set when the profile.username is empty and User.username is present
-        if getattr(profile, "username", None) in (None, "") and getattr(instance, "username", None):
-            profile.username = instance.username
-            profile.save(update_fields=["username"])
-    except Profile.DoesNotExist:
-        # get_or_create above should have created the profile; ignore otherwise
-        pass
+    # If the Profile model actually defines a 'username' field, sync it from the User.
+    # Use a QuerySet update to avoid loading the Profile instance and triggering
+    # signal recursion or additional save handlers.
+    has_username_field = any(f.name == "username" for f in Profile._meta.get_fields())
+    if has_username_field and getattr(instance, "username", None):
+        Profile.objects.filter(user=instance).update(username=instance.username)
