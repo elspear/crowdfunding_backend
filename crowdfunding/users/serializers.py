@@ -16,8 +16,13 @@ class CustomUserSerializer(serializers.ModelSerializer):
         return CustomUser.objects.create_user(**validated_data)
 
 
+
 class ProfileSerializer(serializers.ModelSerializer):
-    # Be defensive: use SerializerMethodField to avoid AttributeError if related_name differs
+    # Expose linked user and a top-level username so frontend can always read it.
+    user = CustomUserSerializer(read_only=True)
+    username = serializers.SerializerMethodField(read_only=True)
+
+    # Keep your existing SerializerMethodFields
     fundraisers = serializers.SerializerMethodField()
     pledges = serializers.SerializerMethodField()
 
@@ -26,8 +31,15 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        # include `avatar` so the frontend can save / read the user's selection
-        fields = ['bio', 'avatar', 'fundraisers', 'pledges']
+        # include `user` and `username` so the frontend can reliably display the username
+        fields = ['id', 'user', 'username', 'bio', 'avatar', 'fundraisers', 'pledges']
+
+    def get_username(self, obj):
+        # Prefer the linked user's username if available
+        if getattr(obj, "user", None):
+            return obj.user.username
+        # Fallback to a Profile.username field if you later add it
+        return getattr(obj, "username", None)
 
     def get_fundraisers(self, obj):
         try:
