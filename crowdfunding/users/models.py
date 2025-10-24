@@ -16,6 +16,10 @@ class CustomUser(AbstractUser):
 class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
     bio = models.TextField(blank=True)
+    # Store a selected avatar identifier (frontend hosts the avatar images).
+    # This can be a filename, a key, or a URL depending on how the frontend organizes avatars.
+    avatar = models.CharField(max_length=200, blank=True, default="")
+
     # profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
 
     def __str__(self):

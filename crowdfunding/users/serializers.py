@@ -21,9 +21,13 @@ class ProfileSerializer(serializers.ModelSerializer):
     fundraisers = serializers.SerializerMethodField()
     pledges = serializers.SerializerMethodField()
 
+    # Frontend provides and hosts avatar images; backend stores the selected avatar key/URL
+    avatar = serializers.CharField(allow_blank=True, required=False)
+
     class Meta:
         model = Profile
-        fields = ['bio', 'profile_image', 'fundraisers', 'pledges']
+        # include `avatar` so the frontend can save / read the user's selection
+        fields = ['bio', 'avatar', 'fundraisers', 'pledges']
 
     def get_fundraisers(self, obj):
         try:
