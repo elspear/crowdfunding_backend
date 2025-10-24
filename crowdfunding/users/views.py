@@ -1,11 +1,11 @@
 from rest_framework.response import Response
-from rest_framework import status, permissions
+from rest_framework import status, permissions, generics
 from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from django.http import Http404
-from .models import Profile
-from .serializers import ProfileSerializer
+from .models import Profile, CustomUser
+from .serializers import ProfileSerializer, CustomUserSerializer
 from .permissions import IsAccountOwner
 
 class ProfileDetail(APIView):
@@ -64,3 +64,17 @@ class CustomAuthToken(ObtainAuthToken):
             'user_id': user.pk,
             'username': getattr(user, 'username', None),
         })
+
+
+class CustomUserList(generics.ListCreateAPIView):
+    """List all users or create a new user."""
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+class CustomUserDetail(generics.RetrieveAPIView):
+    """Retrieve a single user's public info."""
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    permission_classes = [permissions.AllowAny]
