@@ -31,8 +31,8 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        # include `avatar` and `location` fields for frontend use
-        fields = ['bio', 'avatar', 'location', 'fundraisers', 'pledges']
+        # include all fields needed by frontend
+        fields = ['user', 'username', 'bio', 'avatar', 'location', 'fundraisers', 'pledges']
 
     def get_username(self, obj):
         # Prefer the linked user's username if available
