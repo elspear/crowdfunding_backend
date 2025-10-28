@@ -78,3 +78,12 @@ class CustomUserDetail(generics.RetrieveAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = [permissions.AllowAny]
+
+
+class CheckUsernameAvailable(APIView):
+    """Check if a username is available."""
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, username):
+        exists = CustomUser.objects.filter(username=username).exists()
+        return Response({"available": not exists})
