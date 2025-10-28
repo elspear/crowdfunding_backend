@@ -6,14 +6,21 @@ from fundraisers.serializers import FundraiserSerializer, PledgeSerializer
 class CustomUserSerializer(serializers.ModelSerializer):
     role = serializers.ChoiceField(choices=CustomUser.ROLE_CHOICES)
     password = serializers.CharField(write_only=True)
+    avatar = serializers.CharField(write_only=True, required=False)  # Add this line
 
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'role', 'password']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'role', 'password', 'avatar']
         extra_kwargs = {'password': {'write_only': True}, 'date_joined': {'read_only': True}}
 
     def create(self, validated_data):
-        return CustomUser.objects.create_user(**validated_data)
+        # Remove avatar from the data going to create_user
+        avatar = validated_data.pop('avatar', None)
+        # Create the user
+        user = CustomUser.objects.create_user(**validated_data)
+        # Store avatar temporarily on user instance for signal to use
+        user._avatar = avatar
+        return user
 
 
 

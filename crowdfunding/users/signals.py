@@ -6,7 +6,6 @@ from .models import Profile
 
 User = get_user_model()
 
-
 @receiver(post_save, sender=User)
 def ensure_profile_and_sync_username(sender, instance, created, **kwargs):
     """
@@ -15,11 +14,17 @@ def ensure_profile_and_sync_username(sender, instance, created, **kwargs):
     On subsequent saves, ensure a Profile exists and keep profile.username
     in sync using a QuerySet update for efficiency.
     """
-    # Create profile if missing; when creating, try to set username directly
+    # Create profile if missing; when creating, try to set username and avatar directly
     if created:
         # If Profile has a username field, set it at creation to avoid an extra save
         try:
-            Profile.objects.create(user=instance, username=instance.username)
+            # Get avatar from instance if it was passed during signup
+            avatar = getattr(instance, '_avatar', None)
+            Profile.objects.create(
+                user=instance, 
+                username=instance.username,
+                avatar=avatar or ''  # Use empty string if no avatar provided
+            )
         except TypeError:
             # Profile model doesn't accept username in constructor (field may not exist)
             Profile.objects.create(user=instance)
