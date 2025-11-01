@@ -72,6 +72,18 @@ class CustomUserList(generics.ListCreateAPIView):
     serializer_class = CustomUserSerializer
     permission_classes = [permissions.AllowAny]
 
+    def create(self, request, *args, **kwargs):
+        try:
+            response = super().create(request, *args, **kwargs)
+            return response
+        except Exception as e:
+            import traceback
+            traceback.print_exc()  # This will log to your Heroku logs
+            return Response(
+                {'detail': 'Error creating user: ' + str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 
 class CustomUserDetail(generics.RetrieveAPIView):
     """Retrieve a single user's public info."""
