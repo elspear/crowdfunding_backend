@@ -34,21 +34,29 @@ class ProfileDetail(APIView):
     def put(self, request, user_id):
         profile = self.get_object(user_id)
         self.check_object_permissions(request, profile)
+        print(f"PUT request.data: {request.data}")  # Debug log
         serializer = ProfileSerializer(profile, data=request.data, partial=True)
         if serializer.is_valid():
-            serializer.save()
+            print(f"Valid data: {serializer.validated_data}")  # Debug log
+            updated_profile = serializer.save()
+            print(f"Updated profile location: {updated_profile.location}")  # Debug log
             return Response(serializer.data)
         else:
+            print(f"Serializer errors: {serializer.errors}")  # Debug log
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, user_id):
         profile = self.get_object(user_id)
         self.check_object_permissions(request, profile)
+        print(f"PATCH request.data: {request.data}")  # Debug log
         serializer = ProfileSerializer(profile, data=request.data, partial=True)
         if serializer.is_valid():
-            serializer.save()
+            print(f"Valid data: {serializer.validated_data}")  # Debug log
+            updated_profile = serializer.save()
+            print(f"Updated profile location: {updated_profile.location}")  # Debug log
             return Response(serializer.data)
         else:
+            print(f"Serializer errors: {serializer.errors}")  # Debug log
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -74,8 +82,13 @@ class CustomUserList(generics.ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         try:
+            print(f"Create user request data: {request.data}")  # Debug log
             response = super().create(request, *args, **kwargs)
-            return response
+            
+            # Get the created user with their profile
+            user = CustomUser.objects.get(id=response.data['id'])
+            serializer = CustomUserSerializer(user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         except Exception as e:
             import traceback
             traceback.print_exc()  # This will log to your Heroku logs

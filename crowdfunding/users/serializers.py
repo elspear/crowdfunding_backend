@@ -4,15 +4,23 @@ from fundraisers.serializers import FundraiserSerializer, PledgeSerializer
 from django.core.exceptions import ObjectDoesNotExist
 
 
+class BasicProfileSerializer(serializers.ModelSerializer):
+    """A simplified profile serializer to avoid circular imports"""
+    class Meta:
+        model = Profile
+        fields = ['bio', 'avatar', 'location']
+
+
 class CustomUserSerializer(serializers.ModelSerializer):
     role = serializers.ChoiceField(choices=CustomUser.ROLE_CHOICES)
     password = serializers.CharField(write_only=True)
     avatar = serializers.CharField(write_only=True, required=False, allow_blank=True)
     location = serializers.CharField(required=False, allow_blank=True)
+    profile = BasicProfileSerializer(read_only=True)  # Include profile in the output
 
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'role', 'password', 'avatar', 'location']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'role', 'password', 'avatar', 'location', 'profile']
         extra_kwargs = {'password': {'write_only': True}, 'date_joined': {'read_only': True}}
 
     def create(self, validated_data):
