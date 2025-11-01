@@ -130,8 +130,10 @@ class ProfileSerializer(serializers.ModelSerializer):
         return value.strip()
 
     def update(self, instance, validated_data):
+        print(f"Updating profile wit data: {validated_data}")
         """Handle profile updates."""
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
+        print(f"Profile after update: location={instance.location}")
         return instance
