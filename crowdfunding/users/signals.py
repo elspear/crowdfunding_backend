@@ -15,6 +15,10 @@ def ensure_profile_and_sync_username(sender, instance, created, **kwargs):
     that the signup serializer may have set.
     """
     if created:
+        print(f"Creating profile for user {instance.username}")  # Debug log
+        print(f"User _avatar: {getattr(instance, '_avatar', 'not set')}")  # Debug log
+        print(f"User _location: {getattr(instance, '_location', 'not set')}")  # Debug log
+        
         # Consume temporary attributes set by serializer (predictable empty-string fallback)
         avatar = getattr(instance, "_avatar", "") or ""
         location = getattr(instance, "_location", "") or ""

@@ -24,18 +24,27 @@ class CustomUserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}, 'date_joined': {'read_only': True}}
 
     def create(self, validated_data):
-        # Remove avatar from the data going to create_user
+        print(f"CustomUserSerializer.create received data: {validated_data}")  # Debug log
+        
+        # Remove avatar and location from the data going to create_user
         avatar = validated_data.pop('avatar', None)
         location = validated_data.pop('location', None)
-        print(f"Creating user with location: {location}")  # Debug log
+        print(f"Extracted location: {location}, avatar: {avatar}")  # Debug log
+        
         # Create the user
         user = CustomUser.objects.create_user(**validated_data)
-        # Store avatar temporarily on user instance for signal to use
-        user._avatar = avatar or ""
-        user._location = location or ""
+        
+        # Store avatar and location temporarily on user instance for signal to use
+        user._avatar = avatar
+        user._location = location
         print(f"Set user._location to: {user._location}")  # Debug log
+        
+        # Important: Save to trigger the signal
         user.save()
-
+        
+        # Fetch the fresh user instance with profile
+        user.refresh_from_db()
+        
         return user
     
 
