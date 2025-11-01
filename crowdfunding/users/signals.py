@@ -19,10 +19,14 @@ def ensure_profile_and_sync_username(sender, instance, created, **kwargs):
         print(f"User _avatar: {getattr(instance, '_avatar', 'not set')}")  # Debug log
         print(f"User _location: {getattr(instance, '_location', 'not set')}")  # Debug log
         
-        # Consume temporary attributes set by serializer (predictable empty-string fallback)
-        avatar = getattr(instance, "_avatar", "") or ""
-        location = getattr(instance, "_location", "") or ""
+        # Consume temporary attributes set by serializer
+        avatar = getattr(instance, "_avatar", None)
+        location = getattr(instance, "_location", None)
         print(f"Signal received location: {location}")  # Debug log
+        
+        # Only use empty string if the values are None
+        avatar = "" if avatar is None else avatar
+        location = "" if location is None else location
 
         try:
             profile = Profile.objects.create(
