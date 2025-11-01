@@ -27,9 +27,10 @@ class CustomUserSerializer(serializers.ModelSerializer):
         user._avatar = avatar or ""
         user._location = location or ""
         user.save()
-    
-        
+
         return user
+    
+
 
 
 class ProfileSerializer(serializers.ModelSerializer):
