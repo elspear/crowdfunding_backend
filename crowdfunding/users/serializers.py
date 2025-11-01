@@ -1,13 +1,16 @@
 from rest_framework import serializers
 from .models import CustomUser, Profile
 from fundraisers.serializers import FundraiserSerializer, PledgeSerializer
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
     role = serializers.ChoiceField(choices=CustomUser.ROLE_CHOICES)
     password = serializers.CharField(write_only=True)
     avatar = serializers.CharField(write_only=True, required=False)
-    location = serializers.CharField(write_only=True, required=True)
+    location = serializers.CharField(
+        required=True
+        )
 
     class Meta:
         model = CustomUser
@@ -23,53 +26,89 @@ class CustomUserSerializer(serializers.ModelSerializer):
         # Store avatar temporarily on user instance for signal to use
         user._avatar = avatar or ""
         user._location = location or ""
+        user.save()
     
         
         return user
 
 
-
 class ProfileSerializer(serializers.ModelSerializer):
-    # Expose linked user and a top-level username so frontend can always read it.
+    # Nested serializer for user data
     user = CustomUserSerializer(read_only=True)
     username = serializers.SerializerMethodField(read_only=True)
-
-    # Keep your existing SerializerMethodFields
+    
+    # Related fields
     fundraisers = serializers.SerializerMethodField()
     pledges = serializers.SerializerMethodField()
-
-    # Frontend provides and hosts avatar images; backend stores the selected avatar key/URL
-    avatar = serializers.CharField(allow_blank=True, required=False)
+    
+    # Profile specific fields
+    avatar = serializers.CharField(
+        allow_blank=True, 
+        required=False,
+        max_length=200
+    )
+    location = serializers.CharField(
+        allow_blank=True,
+        required=False,
+        max_length=100
+    )
+    bio = serializers.CharField(
+        allow_blank=True,
+        required=False,
+        style={'base_template': 'textarea.html'}
+    )
 
     class Meta:
         model = Profile
-        # include all fields needed by frontend
-        fields = ['user', 'username', 'bio', 'avatar', 'location', 'fundraisers', 'pledges']
+        fields = [
+            'user',
+            'username',
+            'bio',
+            'avatar',
+            'location',
+            'fundraisers',
+            'pledges'
+        ]
 
     def get_username(self, obj):
-        # Prefer the linked user's username if available
-        if getattr(obj, "user", None):
-            return obj.user.username
-        # Fallback to a Profile.username field if you later add it
-        return getattr(obj, "username", None)
+        """Return username from associated user or profile."""
+        return obj.user.username if obj.user else obj.username
 
     def get_fundraisers(self, obj):
+        """Return user's owned fundraisers."""
         try:
-            fundraisers_qs = getattr(obj.user, 'owned_fundraisers', None)
-            if fundraisers_qs is None:
-                return []
-            # If it's a manager/queryset, serialize it
-            return FundraiserSerializer(fundraisers_qs.all(), many=True, read_only=True).data
-        except Exception:
-            # Optionally log exception server-side here
+            fundraisers = obj.user.owned_fundraisers.all()
+            return FundraiserSerializer(
+                fundraisers,
+                many=True,
+                read_only=True
+            ).data
+        except (AttributeError, ObjectDoesNotExist):
             return []
 
     def get_pledges(self, obj):
+        """Return user's non-anonymous pledges."""
         try:
-            user = obj.user
-            pledges_qs = getattr(user, 'pledges', None)
-            if pledges_qs is None:
-                return []
-            return PledgeSerializer(pledges_qs.filter(anonymous=False), many=True).data
-        except Exception:
+            pledges = obj.user.pledges.filter(anonymous=False)
+            return PledgeSerializer(
+                pledges,
+                many=True,
+                read_only=True
+            ).data
+        except (AttributeError, ObjectDoesNotExist):
             return []
+
+    def validate_location(self, value):
+        """Validate location field."""
+        if value and len(value.strip()) > 100:
+            raise serializers.ValidationError(
+                "Location must be less than 100 characters."
+            )
+        return value.strip()
+
+    def update(self, instance, validated_data):
+        """Handle profile updates."""
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
