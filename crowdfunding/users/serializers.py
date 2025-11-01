@@ -7,10 +7,8 @@ from django.core.exceptions import ObjectDoesNotExist
 class CustomUserSerializer(serializers.ModelSerializer):
     role = serializers.ChoiceField(choices=CustomUser.ROLE_CHOICES)
     password = serializers.CharField(write_only=True)
-    avatar = serializers.CharField(write_only=True, required=False)
-    location = serializers.CharField(
-        required=True
-        )
+    avatar = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    location = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model = CustomUser
