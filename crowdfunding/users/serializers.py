@@ -19,11 +19,13 @@ class CustomUserSerializer(serializers.ModelSerializer):
         # Remove avatar from the data going to create_user
         avatar = validated_data.pop('avatar', None)
         location = validated_data.pop('location', None)
+        print(f"Creating user with location: {location}")  # Debug log
         # Create the user
         user = CustomUser.objects.create_user(**validated_data)
         # Store avatar temporarily on user instance for signal to use
         user._avatar = avatar or ""
         user._location = location or ""
+        print(f"Set user._location to: {user._location}")  # Debug log
         user.save()
 
         return user

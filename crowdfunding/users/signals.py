@@ -18,14 +18,16 @@ def ensure_profile_and_sync_username(sender, instance, created, **kwargs):
         # Consume temporary attributes set by serializer (predictable empty-string fallback)
         avatar = getattr(instance, "_avatar", "") or ""
         location = getattr(instance, "_location", "") or ""
+        print(f"Signal received location: {location}")  # Debug log
 
         try:
-            Profile.objects.create(
+            profile = Profile.objects.create(
                 user=instance,
                 username=getattr(instance, "username", "") or "",
                 avatar=avatar,
                 location=location,
             )
+            print(f"Created profile with location: {profile.location}")  # Debug log
         except TypeError:
             # Fallback if Profile constructor signature differs
             profile = Profile.objects.create(user=instance)
