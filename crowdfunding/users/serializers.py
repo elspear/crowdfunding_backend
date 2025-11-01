@@ -24,26 +24,31 @@ class CustomUserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}, 'date_joined': {'read_only': True}}
 
     def create(self, validated_data):
-        print(f"CustomUserSerializer.create received data: {validated_data}")  # Debug log
+        print("=== CustomUserSerializer.create ===")
+        print(f"1. Received data: {validated_data}")
         
         # Remove avatar and location from the data going to create_user
         avatar = validated_data.pop('avatar', None)
         location = validated_data.pop('location', None)
-        print(f"Extracted location: {location}, avatar: {avatar}")  # Debug log
+        print(f"2. Extracted fields: avatar={avatar}, location={location}")
+        print(f"3. Remaining data: {validated_data}")
         
         # Create the user
         user = CustomUser.objects.create_user(**validated_data)
+        print(f"4. Created user: {user.username} (id={user.id})")
         
         # Store avatar and location temporarily on user instance for signal to use
         user._avatar = avatar
         user._location = location
-        print(f"Set user._location to: {user._location}")  # Debug log
+        print(f"5. Set temporary attributes: _avatar={getattr(user, '_avatar', None)}, _location={getattr(user, '_location', None)}")
         
-        # Important: Save to trigger the signal
-        user.save()
+        
         
         # Fetch the fresh user instance with profile
         user.refresh_from_db()
+        print(f"7. Refreshed user: has_profile={hasattr(user, 'profile')}")
+        if hasattr(user, 'profile'):
+            print(f"8. Profile data: avatar={user.profile.avatar}, location={user.profile.location}")
         
         return user
     
