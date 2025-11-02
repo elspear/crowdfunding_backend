@@ -28,6 +28,7 @@ class Fundraiser(models.Model):
     goal = models.IntegerField()
     items_needed = models.CharField(max_length=200, blank=True, default="")  # optional list
     image = models.URLField()
+    location = models.CharField(max_length=200, blank=True, default="")  # New location field
     is_open = models.BooleanField(default=True)
     date_created = models.DateTimeField(auto_now_add=True)
     end_date = models.DateTimeField(blank=True, null=True)
