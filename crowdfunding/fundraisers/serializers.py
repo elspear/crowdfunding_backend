@@ -81,6 +81,7 @@ class FundraiserDetailSerializer(FundraiserSerializer):
         instance.items_needed = validated_data.get(
             "items_needed", instance.items_needed
         )
+        instance.location = validated_data.get("location", instance.location)  # Add location field
         instance.image = validated_data.get("image", instance.image)
         instance.is_open = validated_data.get("is_open", instance.is_open)
         instance.owner = validated_data.get("owner", instance.owner)
