@@ -105,6 +105,19 @@ class CustomUserDetail(generics.RetrieveAPIView):
     permission_classes = [permissions.AllowAny]
 
 
+class PublicProfileView(APIView):
+    """View for public access to user profiles without authentication"""
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, user_id):
+        try:
+            profile = Profile.objects.get(user__id=user_id)
+            serializer = ProfileSerializer(profile)
+            return Response(serializer.data)
+        except Profile.DoesNotExist:
+            raise Http404("Profile not found")
+
+
 class CheckUsernameAvailable(APIView):
     """Check if a username is available."""
     permission_classes = [permissions.AllowAny]
